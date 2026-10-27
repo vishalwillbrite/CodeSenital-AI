@@ -1,0 +1,278 @@
+@import "tailwindcss";
+
+:root {
+  /* Core Theme Colors: Dark Navy & Green (Default) */
+  --bg: #0B0D12;
+  --surface: #12151C;
+  --surface-raised: #1A1E27;
+  --border: #262B36;
+  --text: #F2F4F8;
+  --text-secondary: #9BA3B4;
+  --text-muted: #8089A0;
+  --accent-green: #10B981;
+  --accent-green-light: #34D399;
+  --accent-green-strong: #059669;
+  --accent-tint: rgba(16, 185, 129, 0.12);
+  --text-on-green: #04130D;
+
+  /* Severity Colors (Dark Mode) */
+  --severity-critical: #F43F5E;
+  --severity-critical-tint: rgba(244, 63, 94, 0.12);
+  --severity-critical-border: rgba(244, 63, 94, 0.3);
+
+  --severity-high: #F97316;
+  --severity-high-tint: rgba(249, 115, 22, 0.12);
+  --severity-high-border: rgba(249, 115, 22, 0.3);
+
+  --severity-medium: #FBBF24;
+  --severity-medium-tint: rgba(251, 191, 36, 0.12);
+  --severity-medium-border: rgba(251, 191, 36, 0.3);
+
+  --severity-low: #94A3B8;
+  --severity-low-tint: rgba(148, 163, 184, 0.12);
+  --severity-low-border: rgba(148, 163, 184, 0.3);
+
+  --severity-pass: #10B981;
+  --severity-pass-tint: rgba(16, 185, 129, 0.12);
+  --severity-pass-border: rgba(16, 185, 129, 0.3);
+}
+
+/* Light Theme Mode */
+[data-theme="light"] {
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-raised: #F1F5F9;
+  --border: #E2E8F0;
+  --text: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+
+  --severity-critical: #E11D48;
+  --severity-critical-tint: rgba(225, 29, 72, 0.08);
+  --severity-critical-border: rgba(225, 29, 72, 0.25);
+
+  --severity-high: #EA580C;
+  --severity-high-tint: rgba(234, 88, 12, 0.08);
+  --severity-high-border: rgba(234, 88, 12, 0.25);
+
+  --severity-medium: #D97706;
+  --severity-medium-tint: rgba(217, 119, 6, 0.08);
+  --severity-medium-border: rgba(217, 119, 6, 0.25);
+
+  --severity-low: #64748B;
+  --severity-low-tint: rgba(100, 116, 139, 0.08);
+  --severity-low-border: rgba(100, 116, 139, 0.25);
+
+  --severity-pass: #059669;
+  --severity-pass-tint: rgba(5, 150, 105, 0.08);
+  --severity-pass-border: rgba(5, 150, 105, 0.25);
+}
+
+/* Accent Color Variations */
+[data-accent="green"], :root {
+  --accent-green: #10B981;
+  --accent-green-light: #34D399;
+  --accent-green-strong: #059669;
+  --accent-tint: rgba(16, 185, 129, 0.12);
+  --text-on-green: #04130D;
+}
+
+[data-accent="blue"] {
+  --accent-green: #3B82F6;
+  --accent-green-light: #60A5FA;
+  --accent-green-strong: #2563EB;
+  --accent-tint: rgba(59, 130, 246, 0.14);
+  --text-on-green: #FFFFFF;
+}
+
+[data-accent="orange"] {
+  --accent-green: #F97316;
+  --accent-green-light: #FB923C;
+  --accent-green-strong: #EA580C;
+  --accent-tint: rgba(249, 115, 22, 0.14);
+  --text-on-green: #FFFFFF;
+}
+
+[data-accent="red"] {
+  --accent-green: #EF4444;
+  --accent-green-light: #F87171;
+  --accent-green-strong: #DC2626;
+  --accent-tint: rgba(239, 68, 68, 0.14);
+  --text-on-green: #FFFFFF;
+}
+
+[data-accent="violet"] {
+  --accent-green: #8B5CF6;
+  --accent-green-light: #A78BFA;
+  --accent-green-strong: #7C3AED;
+  --accent-tint: rgba(139, 92, 246, 0.14);
+  --text-on-green: #FFFFFF;
+}
+
+@theme inline {
+  --color-bg-app: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-theme-border: var(--border);
+  --color-text-main: var(--text);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-accent-green: var(--accent-green);
+  --color-accent-green-light: var(--accent-green-light);
+  --color-accent-green-strong: var(--accent-green-strong);
+  --color-accent-tint: var(--accent-tint);
+  --color-text-on-green: var(--text-on-green);
+
+  --color-severity-critical: var(--severity-critical);
+  --color-severity-high: var(--severity-high);
+  --color-severity-medium: var(--severity-medium);
+  --color-severity-low: var(--severity-low);
+  --color-severity-pass: var(--severity-pass);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Utility Classes for Clean CSS Variable Usage */
+.bg-theme-bg { background-color: var(--bg); }
+.bg-theme-surface { background-color: var(--surface); }
+.bg-theme-surface-raised { background-color: var(--surface-raised); }
+.border-theme { border-color: var(--border); }
+.text-theme-main { color: var(--text); }
+.text-theme-secondary { color: var(--text-secondary); }
+.text-theme-muted { color: var(--text-muted); }
+
+/* Primary Button: Green #059669 with dark #04130D text, hover #10B981 */
+.btn-primary {
+  background-color: var(--accent-green-strong);
+  color: var(--text-on-green);
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--accent-green);
+  color: var(--text-on-green);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  transition: all 0.15s ease;
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--border);
+  color: var(--text);
+}
+
+/* Light Mode Overrides for active tab/chip text contrast */
+[data-theme="light"] .tab-btn-active,
+[data-theme="light"] .chip-btn-active {
+  color: var(--accent-green-strong);
+}
+
+/* Tabs */
+.tab-btn-inactive {
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+.tab-btn-inactive:hover {
+  color: var(--text);
+  background-color: var(--surface);
+}
+.tab-btn-active {
+  background-color: var(--surface-raised);
+  color: var(--accent-green-light);
+  border: 1px solid var(--accent-green);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Chips / Pills */
+.chip-btn-inactive {
+  background-color: var(--surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  transition: all 0.15s ease;
+}
+.chip-btn-inactive:hover {
+  background-color: var(--surface-raised);
+  color: var(--text);
+  border-color: var(--border);
+}
+.chip-btn-active {
+  background-color: var(--surface-raised);
+  color: var(--accent-green-light);
+  border: 1px solid var(--accent-green);
+  font-weight: 600;
+}
+
+/* Input Fields & Containers with Focus Rings */
+.input-theme {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.input-theme:focus,
+.input-theme:focus-within {
+  border-color: var(--accent-green) !important;
+  outline: none;
+  box-shadow: 0 0 0 1px var(--accent-green) !important;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--surface-raised);
+}
+
+/* Modal Animations */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.15s ease-out forwards;
+}

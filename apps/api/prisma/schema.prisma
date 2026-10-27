@@ -1,0 +1,132 @@
+// Prisma schema for CodeSentinel AI backend
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReviewStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum Severity {
+  INFO
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model User {
+  id        String   @id @default(uuid())
+  githubId  String?  @unique
+  username  String?
+  name      String?
+  email     String?  @unique
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviews       Review[]
+  installations GithubInstallation[]
+
+  @@map("users")
+}
+
+model GithubInstallation {
+  id             String             @id @default(uuid())
+  installationId String             @unique
+  userId         String
+  accountLogin   String
+  accountType    String
+  targetId       String
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repositories   GithubRepository[]
+
+  @@index([userId])
+  @@index([installationId])
+  @@map("github_installations")
+}
+
+model GithubRepository {
+  id             String             @id @default(uuid())
+  installationId String
+  githubRepoId   String             @unique
+  owner          String
+  name           String
+  fullName       String             @unique
+  isPrivate      Boolean            @default(false)
+  defaultBranch  String             @default("main")
+  htmlUrl        String?
+  description    String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  installation   GithubInstallation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+  reviews        Review[]
+
+  @@index([installationId])
+  @@index([fullName])
+  @@map("github_repositories")
+}
+
+model Review {
+  id           String            @id @default(uuid())
+  userId       String
+  language     String
+  sourceCode   String            @db.Text
+  status       ReviewStatus      @default(PENDING)
+  summary      String?           @db.Text
+  overallRisk  String?
+  errorMessage String?           @db.Text
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  repositoryId String?
+  filePath     String?
+  commitSha    String?
+  branch       String?
+  pullNumber   Int?
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repository   GithubRepository? @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
+  findings     Finding[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([repositoryId])
+  @@map("reviews")
+}
+
+model Finding {
+  id           String    @id @default(uuid())
+  reviewId     String
+  title        String
+  description  String    @db.Text
+  severity     Severity  @default(MEDIUM)
+  category     String
+  lineStart    Int?
+  lineEnd      Int?
+  suggestedFix String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  review       Review    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@index([severity])
+  @@index([category])
+  @@map("findings")
+}
+

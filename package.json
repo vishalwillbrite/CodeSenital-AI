@@ -1,0 +1,21 @@
+{
+  "name": "codesentinel-ai",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "apps/api"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=web",
+    "dev:api": "npm run start:dev --workspace=api",
+    "build:web": "npm run build --workspace=web",
+    "build:api": "npm run build --workspace=api",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "prisma:generate": "npm run prisma:generate --workspace=api",
+    "prisma:migrate": "npm run prisma:migrate --workspace=api"
+  }
+}
+
