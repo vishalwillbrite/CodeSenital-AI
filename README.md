@@ -140,10 +140,5 @@ npm run build --workspace=web
 
 Contributions, suggestions, and bug reports are welcome. Fork the repository, create a feature branch, and submit a pull request describing your changes.
 
-##  License
-
-A license has not yet been specified. Add a `LICENSE` file before distributing the project under an open-source license.
-
----
 
 **CodeSentinel AI** — Write safer code. Review smarter. Build with confidence.
