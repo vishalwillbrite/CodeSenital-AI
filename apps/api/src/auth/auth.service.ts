@@ -19,6 +19,37 @@ export const SESSION_COOKIE_NAME = 'codesentinel_session';
 export const OAUTH_STATE_COOKIE_NAME = 'codesentinel_oauth_state';
 export const OAUTH_RETURN_TO_COOKIE_NAME = 'codesentinel_oauth_return_to';
 
+export interface AuthCookieConfigOptions {
+  maxAge?: number;
+  isProduction?: boolean;
+}
+
+/**
+ * Returns standardized cookie options for authentication and OAuth flow.
+ * - Production: SameSite=None, Secure=true (required for cross-origin Vercel ↔ Render cookies)
+ * - Development: SameSite=Lax, Secure=false (required for localhost HTTP)
+ */
+export function getAuthCookieOptions(options?: AuthCookieConfigOptions): {
+  httpOnly: boolean;
+  secure: boolean;
+  sameSite: 'none' | 'lax';
+  path: string;
+  maxAge?: number;
+} {
+  const isProd =
+    options?.isProduction !== undefined
+      ? options.isProduction
+      : process.env.NODE_ENV === 'production';
+
+  return {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    path: '/',
+    ...(options?.maxAge !== undefined ? { maxAge: options.maxAge } : {}),
+  };
+}
+
 const DEFAULT_JWT_SECRET = 'codesentinel_dev_secret_key_change_in_production';
 
 @Injectable()
@@ -45,7 +76,11 @@ export class AuthService {
   }
 
   getFrontendUrl(): string {
-    return process.env.FRONTEND_URL?.trim() || 'http://localhost:3000';
+    const configured = process.env.FRONTEND_URL?.trim();
+    if (configured) {
+      return configured.replace(/\/+$/, '');
+    }
+    return 'http://localhost:3000';
   }
 
   getCallbackUrl(): string {

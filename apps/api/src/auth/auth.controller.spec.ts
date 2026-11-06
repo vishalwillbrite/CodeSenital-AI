@@ -35,6 +35,12 @@ describe('AuthController', () => {
     return res as unknown as Response;
   };
 
+  const originalNodeEnv = process.env.NODE_ENV;
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+  });
+
   beforeEach(async () => {
     mockAuthService = {
       isOAuthConfigured: jest.fn().mockReturnValue(true),
@@ -96,11 +102,30 @@ describe('AuthController', () => {
         expect.objectContaining({
           httpOnly: true,
           sameSite: 'lax',
+          secure: false,
           path: '/',
         }),
       );
       expect(res.redirect).toHaveBeenCalledWith(
         'https://github.com/login/oauth/authorize?test=1',
+      );
+    });
+
+    it('should set SameSite=None and Secure=true in production environment', async () => {
+      process.env.NODE_ENV = 'production';
+      const res = createMockResponse();
+
+      await controller.signInWithGitHub('/workspace', res);
+
+      expect(res.cookie).toHaveBeenCalledWith(
+        OAUTH_STATE_COOKIE_NAME,
+        expect.any(String),
+        expect.objectContaining({
+          httpOnly: true,
+          sameSite: 'none',
+          secure: true,
+          path: '/',
+        }),
       );
     });
 
@@ -184,10 +209,42 @@ describe('AuthController', () => {
         expect.objectContaining({
           httpOnly: true,
           sameSite: 'lax',
+          secure: false,
           path: '/',
         }),
       );
       expect(res.redirect).toHaveBeenCalledWith('http://localhost:3000/');
+    });
+
+    it('should set session cookie with SameSite=None and Secure=true in production', async () => {
+      process.env.NODE_ENV = 'production';
+      const validState = 'matching-valid-csrf-state';
+      const res = createMockResponse();
+      const req = {
+        cookies: {
+          [OAUTH_STATE_COOKIE_NAME]: validState,
+        },
+      } as unknown as Request;
+
+      await controller.gitHubCallback(
+        'valid-github-code',
+        validState,
+        undefined,
+        undefined,
+        req,
+        res,
+      );
+
+      expect(res.cookie).toHaveBeenCalledWith(
+        SESSION_COOKIE_NAME,
+        'jwt-session-token-xyz',
+        expect.objectContaining({
+          httpOnly: true,
+          sameSite: 'none',
+          secure: true,
+          path: '/',
+        }),
+      );
     });
   });
 
@@ -234,6 +291,22 @@ describe('AuthController', () => {
       expect(result).toEqual({
         message: 'Successfully signed out.',
       });
+    });
+
+    it('should clear session cookie with production options in production mode', () => {
+      process.env.NODE_ENV = 'production';
+      const res = createMockResponse();
+      controller.logout(res);
+
+      expect(res.clearCookie).toHaveBeenCalledWith(
+        SESSION_COOKIE_NAME,
+        expect.objectContaining({
+          httpOnly: true,
+          secure: true,
+          sameSite: 'none',
+          path: '/',
+        }),
+      );
     });
   });
 });

@@ -74,7 +74,10 @@ export default function Home() {
     checkAuthSession();
   }, []);
 
-  const handleSignIn = () => {
+  const handleSignIn = (e?: React.MouseEvent | React.FormEvent) => {
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
+    }
     const returnPath = typeof window !== "undefined" ? window.location.pathname : "/";
     window.location.href = `${API_BASE_URL}/auth/github?returnTo=${encodeURIComponent(returnPath)}`;
   };

@@ -20,9 +20,20 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // Enable CORS for frontend applications with credentials (cookies) support
-  const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const rawFrontendUrl = process.env.FRONTEND_URL?.trim() || 'http://localhost:3000';
+  const cleanFrontendUrl = rawFrontendUrl.replace(/\/+$/, '');
+  const allowedOrigins = Array.from(
+    new Set([
+      cleanFrontendUrl,
+      `${cleanFrontendUrl}/`,
+      'https://code-senital-ai.vercel.app',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+    ]),
+  );
+
   app.enableCors({
-    origin: [allowedOrigin, 'http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: allowedOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });

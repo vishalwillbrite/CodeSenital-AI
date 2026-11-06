@@ -17,6 +17,7 @@ import {
   SESSION_COOKIE_NAME,
   OAUTH_STATE_COOKIE_NAME,
   OAUTH_RETURN_TO_COOKIE_NAME,
+  getAuthCookieOptions,
 } from './auth.service';
 import { AuthGuard } from './guards/auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -66,29 +67,23 @@ export class AuthController {
       return res.redirect(url.toString());
     }
 
-    const isProduction = process.env.NODE_ENV === 'production';
-
     // 1. Generate cryptographically strong random state
     const state = crypto.randomBytes(32).toString('hex');
 
     // 2. Persist state in secure HttpOnly cookie (10 min TTL)
-    res.cookie(OAUTH_STATE_COOKIE_NAME, state, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 10 * 60 * 1000,
-    });
+    res.cookie(
+      OAUTH_STATE_COOKIE_NAME,
+      state,
+      getAuthCookieOptions({ maxAge: 10 * 60 * 1000 }),
+    );
 
     // 3. Persist validated return destination
     const safeReturnTo = this.authService.validateReturnUrl(returnTo);
-    res.cookie(OAUTH_RETURN_TO_COOKIE_NAME, safeReturnTo, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 10 * 60 * 1000,
-    });
+    res.cookie(
+      OAUTH_RETURN_TO_COOKIE_NAME,
+      safeReturnTo,
+      getAuthCookieOptions({ maxAge: 10 * 60 * 1000 }),
+    );
 
     // 4. Redirect to GitHub OAuth consent screen
     const authorizationUrl = this.authService.getAuthorizationUrl(state);
@@ -112,21 +107,10 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const frontendUrl = this.authService.getFrontendUrl();
-    const isProduction = process.env.NODE_ENV === 'production';
 
     const clearOAuthCookies = () => {
-      res.clearCookie(OAUTH_STATE_COOKIE_NAME, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax',
-        path: '/',
-      });
-      res.clearCookie(OAUTH_RETURN_TO_COOKIE_NAME, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax',
-        path: '/',
-      });
+      res.clearCookie(OAUTH_STATE_COOKIE_NAME, getAuthCookieOptions());
+      res.clearCookie(OAUTH_RETURN_TO_COOKIE_NAME, getAuthCookieOptions());
     };
 
     // 1. Handle user cancellation or OAuth error from GitHub
@@ -179,13 +163,11 @@ export class AuthController {
       });
 
       // 7. Set secure HttpOnly session cookie
-      res.cookie(SESSION_COOKIE_NAME, sessionJwt, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
+      res.cookie(
+        SESSION_COOKIE_NAME,
+        sessionJwt,
+        getAuthCookieOptions({ maxAge: 7 * 24 * 60 * 60 * 1000 }),
+      );
 
       this.logger.log(`User ${user.username} successfully authenticated via GitHub`);
       return res.redirect(`${frontendUrl}${safeReturnTo}`);
@@ -228,13 +210,7 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) res: Response) {
-    const isProduction = process.env.NODE_ENV === 'production';
-    res.clearCookie(SESSION_COOKIE_NAME, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      path: '/',
-    });
+    res.clearCookie(SESSION_COOKIE_NAME, getAuthCookieOptions());
 
     return {
       message: 'Successfully signed out.',

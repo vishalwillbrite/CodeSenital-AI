@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
   BadGatewayException,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { AuthService, getAuthCookieOptions } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 describe('AuthService', () => {
@@ -235,6 +235,49 @@ describe('AuthService', () => {
         },
       });
       expect(result.id).toBe('new-user-uuid');
+    });
+  });
+
+  describe('getAuthCookieOptions', () => {
+    it('should return SameSite=Lax and Secure=false in development mode', () => {
+      process.env.NODE_ENV = 'development';
+      const options = getAuthCookieOptions();
+      expect(options).toEqual({
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        path: '/',
+      });
+    });
+
+    it('should return SameSite=None and Secure=true in production mode', () => {
+      process.env.NODE_ENV = 'production';
+      const options = getAuthCookieOptions();
+      expect(options).toEqual({
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        path: '/',
+      });
+    });
+
+    it('should attach custom maxAge when provided', () => {
+      process.env.NODE_ENV = 'production';
+      const options = getAuthCookieOptions({ maxAge: 60000 });
+      expect(options).toEqual({
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        path: '/',
+        maxAge: 60000,
+      });
+    });
+
+    it('should allow explicit isProduction override regardless of ambient env', () => {
+      process.env.NODE_ENV = 'development';
+      const options = getAuthCookieOptions({ isProduction: true });
+      expect(options.sameSite).toBe('none');
+      expect(options.secure).toBe(true);
     });
   });
 });
